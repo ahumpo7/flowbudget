@@ -361,28 +361,8 @@ export function saveActiveSession(user: UserProfile | null): void {
   }
 }
 
-export const DEFAULT_GOOGLE_CLIENT_ID = '893837704090-dq409ie08lvr9io6blkgiee7g3pbqgve.apps.googleusercontent.com';
-
-// Google Client ID preference
-export function getStoredGoogleClientId(): string {
-  try {
-    return localStorage.getItem(GOOGLE_CLIENT_ID_KEY) || DEFAULT_GOOGLE_CLIENT_ID;
-  } catch {
-    return DEFAULT_GOOGLE_CLIENT_ID;
-  }
-}
-
-export function saveStoredGoogleClientId(clientId: string): void {
-  try {
-    if (clientId.trim()) {
-      localStorage.setItem(GOOGLE_CLIENT_ID_KEY, clientId.trim());
-    } else {
-      localStorage.removeItem(GOOGLE_CLIENT_ID_KEY);
-    }
-  } catch (err) {
-    console.error('Failed to save Google Client ID:', err);
-  }
-}
+// Locked Google Cloud OAuth 2.0 Web Client ID
+export const GOOGLE_CLIENT_ID = '893837704090-dq409ie08lvr9io6blkgiee7g3pbqgve.apps.googleusercontent.com';
 
 // Decodes standard Google Identity Services JWT credential
 export function decodeGoogleCredential(credential: string): UserProfile | null {
