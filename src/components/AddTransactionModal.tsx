@@ -187,8 +187,8 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-black/70 flex items-center justify-center p-3 sm:p-4">
-      <div className="w-full max-w-xl bg-slate-900 border border-slate-700/80 rounded-2xl shadow-xl overflow-hidden">
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-black/70 flex items-end sm:items-center justify-center p-0 sm:p-4">
+      <div className="w-full max-w-xl bg-slate-900 border border-slate-700/80 rounded-t-3xl sm:rounded-2xl shadow-2xl max-h-[92vh] overflow-y-auto">
         {/* Top Header */}
         <div className="p-4 sm:p-5 border-b border-slate-800 flex items-center justify-between">
           <div className="flex items-center gap-2">

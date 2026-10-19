@@ -475,7 +475,7 @@ export const App: React.FC = () => {
       />
 
       {/* Main View Area */}
-      <main className="flex-1 flex flex-col">
+      <main className="flex-1 flex flex-col pb-20 md:pb-6">
         {activeView === 'month' && (
           <CalendarGrid
             currentDate={currentDate}
