@@ -361,12 +361,14 @@ export function saveActiveSession(user: UserProfile | null): void {
   }
 }
 
+export const DEFAULT_GOOGLE_CLIENT_ID = '893837704090-dq409ie08lvr9io6blkgiee7g3pbqgve.apps.googleusercontent.com';
+
 // Google Client ID preference
 export function getStoredGoogleClientId(): string {
   try {
-    return localStorage.getItem(GOOGLE_CLIENT_ID_KEY) || '';
+    return localStorage.getItem(GOOGLE_CLIENT_ID_KEY) || DEFAULT_GOOGLE_CLIENT_ID;
   } catch {
-    return '';
+    return DEFAULT_GOOGLE_CLIENT_ID;
   }
 }
 
