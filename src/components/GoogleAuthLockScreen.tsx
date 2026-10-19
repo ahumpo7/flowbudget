@@ -250,9 +250,43 @@ export const GoogleAuthLockScreen: React.FC<GoogleAuthLockScreenProps> = ({
                     Close
                   </button>
                 </div>
-                <p className="text-[11px] text-slate-400">
-                  Paste your Web Client ID from Google Cloud Console (e.g. <code>xxxx.apps.googleusercontent.com</code>) to enable the native Google popup:
-                </p>
+                <div className="bg-slate-900/80 p-3 rounded-xl border border-slate-700/60 space-y-2 text-[11px] text-slate-300">
+                  <div className="font-semibold text-cyan-300 flex items-center justify-between">
+                    <span>Authorized JavaScript Origins to add in Google Console:</span>
+                    <a
+                      href="https://console.cloud.google.com/apis/credentials"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-cyan-400 hover:underline flex items-center gap-1"
+                    >
+                      <span>Open Console</span>
+                      <ExternalLink className="w-3 h-3" />
+                    </a>
+                  </div>
+                  <div className="space-y-1 font-mono text-[10px]">
+                    <div className="flex items-center justify-between bg-slate-950 p-1.5 rounded border border-slate-800">
+                      <span className="text-slate-300">http://localhost:5173</span>
+                      <button
+                        type="button"
+                        onClick={() => navigator.clipboard.writeText('http://localhost:5173')}
+                        className="text-xs text-cyan-400 hover:text-cyan-300"
+                      >
+                        Copy
+                      </button>
+                    </div>
+                    <div className="flex items-center justify-between bg-slate-950 p-1.5 rounded border border-slate-800">
+                      <span className="text-slate-300">https://ahumpo7.github.io</span>
+                      <button
+                        type="button"
+                        onClick={() => navigator.clipboard.writeText('https://ahumpo7.github.io')}
+                        className="text-xs text-cyan-400 hover:text-cyan-300"
+                      >
+                        Copy
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
                 <input
                   type="text"
                   placeholder="xxxx.apps.googleusercontent.com"
@@ -284,10 +318,10 @@ export const GoogleAuthLockScreen: React.FC<GoogleAuthLockScreenProps> = ({
               <button
                 type="button"
                 onClick={() => setShowClientIdConfig(true)}
-                className="text-xs text-slate-500 hover:text-slate-300 transition-colors inline-flex items-center gap-1"
+                className="text-xs text-cyan-400 hover:text-cyan-300 transition-colors inline-flex items-center gap-1 font-semibold"
               >
-                <Key className="w-3 h-3" />
-                <span>Configure Google Cloud OAuth Client ID (Optional)</span>
+                <Key className="w-3.5 h-3.5" />
+                <span>Configure Google Cloud OAuth Client ID</span>
               </button>
             )}
           </div>
