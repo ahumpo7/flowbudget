@@ -38,6 +38,8 @@ interface NavbarProps {
   onLogout: () => void;
   onSyncGoogle: () => void;
   lastSyncedAt?: string;
+  isDriveActive?: boolean;
+  onConnectDrive?: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -57,6 +59,8 @@ export const Navbar: React.FC<NavbarProps> = ({
   onLogout,
   onSyncGoogle,
   lastSyncedAt,
+  isDriveActive,
+  onConnectDrive,
 }) => {
   const [isEditingBalance, setIsEditingBalance] = useState(false);
   const [tempBalance, setTempBalance] = useState(initialBalance.toString());
@@ -183,15 +187,28 @@ export const Navbar: React.FC<NavbarProps> = ({
                 <span>Add</span>
               </button>
 
-              {/* Google Sync Button (Desktop / Tablet) */}
+              {/* Google Drive Cloud Sync Button */}
               <button
-                onClick={triggerSync}
-                className={`hidden sm:flex p-1.5 sm:p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-emerald-300 border border-slate-700/60 transition-colors ${
-                  isSyncing ? 'text-emerald-400 rotate-180 transition-transform duration-500' : ''
+                onClick={isDriveActive ? triggerSync : onConnectDrive || triggerSync}
+                className={`hidden sm:flex items-center gap-1.5 p-1.5 sm:px-2.5 sm:py-1.5 rounded-xl border transition-colors text-xs font-semibold ${
+                  isDriveActive
+                    ? 'bg-emerald-950/40 border-emerald-500/40 text-emerald-300 hover:bg-emerald-900/50'
+                    : 'bg-slate-800 hover:bg-slate-750 text-slate-300 border-slate-700/60'
                 }`}
-                title="Sync with Google Account"
+                title={
+                  isDriveActive
+                    ? 'Google Drive AppData Sync Active (Tap to sync)'
+                    : 'Connect Google Drive for permanent auto-backup across devices'
+                }
               >
-                <Cloud className="w-4 h-4" />
+                <Cloud
+                  className={`w-4 h-4 ${
+                    isDriveActive ? 'text-emerald-400' : 'text-slate-400'
+                  } ${isSyncing ? 'text-emerald-400 rotate-180 transition-transform duration-500' : ''}`}
+                />
+                <span className="hidden lg:inline text-[11px]">
+                  {isDriveActive ? 'Drive Synced' : 'Sync Drive'}
+                </span>
               </button>
 
               {/* Google User Avatar / Account Profile */}
@@ -217,7 +234,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
                   {showUserMenu && (
                     <div
-                      className="absolute right-0 mt-2 w-64 rounded-2xl bg-slate-800 border border-slate-700 shadow-2xl py-3 z-50 text-xs text-slate-200"
+                      className="absolute right-0 mt-2 w-72 rounded-2xl bg-slate-800 border border-slate-700 shadow-2xl py-3 z-50 text-xs text-slate-200"
                       onMouseLeave={() => setShowUserMenu(false)}
                     >
                       <div className="px-4 pb-3 border-b border-slate-700/80 space-y-1">
@@ -243,26 +260,45 @@ export const Navbar: React.FC<NavbarProps> = ({
                           <span className="font-bold text-white truncate">{user.name}</span>
                         </div>
                         <div className="text-[11px] text-slate-400 truncate">{user.email}</div>
-                        <div className="pt-1 flex items-center gap-1 text-[10px] text-emerald-400 font-medium">
-                          <CheckCircle2 className="w-3 h-3" />
-                          <span>Private Google Vault Active</span>
+                        
+                        <div className="pt-1 flex items-center gap-1.5 text-[10px]">
+                          {isDriveActive ? (
+                            <span className="text-emerald-400 font-semibold flex items-center gap-1">
+                              <CheckCircle2 className="w-3 h-3" />
+                              Google Drive Cloud Backup Active
+                            </span>
+                          ) : (
+                            <span className="text-amber-400 font-semibold flex items-center gap-1">
+                              <Cloud className="w-3 h-3" />
+                              Local Device Storage Only
+                            </span>
+                          )}
                         </div>
                       </div>
 
                       <div className="px-2 pt-2 space-y-1">
+                        {/* Google Drive Connect / Sync Action */}
                         <button
                           onClick={() => {
-                            triggerSync();
+                            if (isDriveActive) {
+                              triggerSync();
+                            } else if (onConnectDrive) {
+                              onConnectDrive();
+                            }
                             setShowUserMenu(false);
                           }}
-                          className="w-full text-left px-3 py-2 hover:bg-slate-700/80 rounded-xl flex items-center justify-between"
+                          className={`w-full text-left px-3 py-2 rounded-xl flex items-center justify-between transition-colors ${
+                            isDriveActive
+                              ? 'hover:bg-slate-700/80 text-emerald-300'
+                              : 'bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-200 border border-emerald-500/30'
+                          }`}
                         >
                           <div className="flex items-center gap-2">
-                            <Cloud className="w-3.5 h-3.5 text-cyan-400" />
-                            <span>Sync Data Now</span>
+                            <Cloud className="w-3.5 h-3.5 text-emerald-400" />
+                            <span>{isDriveActive ? 'Sync Google Drive Now' : 'Connect Google Drive Sync'}</span>
                           </div>
                           <span className="text-[10px] text-slate-400">
-                            {lastSyncedAt ? format(new Date(lastSyncedAt), 'HH:mm') : 'Active'}
+                            {lastSyncedAt ? format(new Date(lastSyncedAt), 'HH:mm') : 'Sync'}
                           </span>
                         </button>
 

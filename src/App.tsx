@@ -43,6 +43,14 @@ import { LayersDrawer } from './components/LayersDrawer';
 import { AddTransactionModal } from './components/AddTransactionModal';
 import { BillDetailModal } from './components/BillDetailModal';
 import { GoogleAuthLockScreen } from './components/GoogleAuthLockScreen';
+import {
+  requestDriveAccessToken,
+  loadFromGoogleDrive,
+  saveToGoogleDrive,
+  isDriveConnected,
+  clearDriveAccessToken,
+  getDriveAccessToken,
+} from './utils/googleDriveSync';
 
 export const App: React.FC = () => {
   // Authentication & Active User Profile
@@ -63,11 +71,25 @@ export const App: React.FC = () => {
   const [addModalDefaultDate, setAddModalDefaultDate] = useState<Date>(new Date());
   const [selectedItem, setSelectedItem] = useState<CalendarItem | null>(null);
   const [syncToast, setSyncToast] = useState<string | null>(null);
+  const [isDriveActive, setIsDriveActive] = useState<boolean>(() => isDriveConnected());
+  const [isDriveSyncing, setIsDriveSyncing] = useState<boolean>(false);
 
-  // Sync state strictly to this specific user's isolated storage
+  // Sync state strictly to this specific user's isolated local storage AND debounced Google Drive
   useEffect(() => {
     if (user && user.id) {
       saveUserAppState(user.id, appState);
+
+      const token = getDriveAccessToken();
+      if (token) {
+        const timer = setTimeout(async () => {
+          try {
+            await saveToGoogleDrive(token, appState);
+          } catch (err) {
+            console.warn('Background Drive save error:', err);
+          }
+        }, 2000);
+        return () => clearTimeout(timer);
+      }
     }
   }, [user, appState]);
 
@@ -89,12 +111,14 @@ export const App: React.FC = () => {
     setAppState(populated);
   };
 
-  // Handle Logout: immediately clear financial data from active memory
+  // Handle Logout: immediately clear financial data and Drive tokens from active memory
   const handleLogout = () => {
     if (user) {
       // Save user state before exit
       saveUserAppState(user.id, appState);
     }
+    clearDriveAccessToken();
+    setIsDriveActive(false);
     // Wipe active session & memory state
     saveActiveSession(null);
     setUser(null);
@@ -104,8 +128,37 @@ export const App: React.FC = () => {
     setIsAddModalOpen(false);
   };
 
-  // Sync with Google Account
-  const handleSyncGoogle = useCallback(() => {
+  // Connect Google Drive AppData folder for permanent cross-device sync
+  const handleConnectDrive = useCallback(async () => {
+    if (!user) return;
+    try {
+      setIsDriveSyncing(true);
+      setSyncToast('Connecting to your Google Drive AppData...');
+      const token = await requestDriveAccessToken();
+      setIsDriveActive(true);
+
+      // Check if Drive already has a vault file
+      const driveVault = await loadFromGoogleDrive(token);
+      if (driveVault && Array.isArray(driveVault.bills)) {
+        setAppState(driveVault);
+        saveUserAppState(user.id, driveVault);
+        setSyncToast('Connected! Restored latest budget from your Google Drive.');
+      } else {
+        // Upload current state to Drive
+        await saveToGoogleDrive(token, appState);
+        setSyncToast('Connected! Budget permanently backed up to your Google Drive.');
+      }
+    } catch (err: any) {
+      console.error('Google Drive sync error:', err);
+      setSyncToast(`Drive note: ${err.message || 'Could not connect'}`);
+    } finally {
+      setIsDriveSyncing(false);
+      setTimeout(() => setSyncToast(null), 4000);
+    }
+  }, [user, appState]);
+
+  // Sync with Google Account & Drive
+  const handleSyncGoogle = useCallback(async () => {
     if (!user) return;
     const nowIso = new Date().toISOString();
     const updatedUser = { ...user, lastSyncedAt: nowIso };
@@ -118,9 +171,22 @@ export const App: React.FC = () => {
       return updatedState;
     });
 
-    setSyncToast('Synced with Google Account');
-    setTimeout(() => setSyncToast(null), 3000);
-  }, [user]);
+    const token = getDriveAccessToken();
+    if (token) {
+      try {
+        setIsDriveSyncing(true);
+        await saveToGoogleDrive(token, appState);
+        setSyncToast('Saved & Synced to your Google Drive');
+      } catch (err: any) {
+        setSyncToast('Synced locally. Drive: ' + (err.message || 'Error'));
+      } finally {
+        setIsDriveSyncing(false);
+        setTimeout(() => setSyncToast(null), 3000);
+      }
+    } else {
+      handleConnectDrive();
+    }
+  }, [user, appState, handleConnectDrive]);
 
   // Compute Calendar Window Dates
   const { calendarStart, calendarEnd, daysInGrid } = useMemo(() => {
@@ -465,6 +531,8 @@ export const App: React.FC = () => {
         onLogout={handleLogout}
         onSyncGoogle={handleSyncGoogle}
         lastSyncedAt={user.lastSyncedAt || appState.lastSyncedAt}
+        isDriveActive={isDriveActive}
+        onConnectDrive={handleConnectDrive}
       />
 
       {/* Cash Flow Summary Metrics Banner */}
