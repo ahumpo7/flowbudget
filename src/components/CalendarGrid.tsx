@@ -22,6 +22,7 @@ import {
   Clock,
   ArrowRight,
   TrendingUp,
+  Sparkles,
 } from 'lucide-react';
 
 interface CalendarGridProps {
@@ -110,61 +111,60 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
               <div
                 key={dateKey}
                 onClick={() => setSelectedMobileDate(day)}
-                className={`group relative min-h-[58px] sm:min-h-[95px] md:min-h-[135px] rounded-xl border p-1 sm:p-1.5 md:p-2 flex flex-col justify-between transition-all cursor-pointer ${
+                className={`group relative min-h-[52px] sm:min-h-[90px] md:min-h-[130px] rounded-xl border p-1 sm:p-1.5 md:p-2 flex flex-col justify-between transition-all cursor-pointer ${
                   isCurrentMonth
-                    ? 'bg-slate-900/60 border-slate-800 hover:border-slate-600'
-                    : 'bg-slate-950/40 border-slate-900 opacity-40 hover:opacity-70'
+                    ? 'bg-slate-900/70 border-slate-800 hover:border-slate-600'
+                    : 'bg-slate-950/40 border-slate-900/60 opacity-35 hover:opacity-70'
                 } ${
                   isSelected
-                    ? 'ring-2 ring-cyan-400 border-cyan-400/80 bg-slate-850 shadow-md'
+                    ? 'ring-2 ring-cyan-400 border-cyan-400 bg-slate-850 shadow-md'
                     : isCurrentDay
-                    ? 'ring-1 sm:ring-2 ring-emerald-400/70 border-emerald-500/50'
+                    ? 'ring-1 sm:ring-2 ring-emerald-400/80 border-emerald-500/60'
                     : ''
                 }`}
               >
                 {/* Day Header: Date Number + Daily Projected Balance */}
-                <div className="flex items-start justify-between gap-0.5 sm:gap-1 mb-0.5 sm:mb-1">
-                  <div className="flex items-center gap-1">
-                    <span
-                      className={`text-[11px] sm:text-xs md:text-sm font-semibold rounded-full w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center ${
-                        isCurrentDay
-                          ? 'bg-emerald-500 text-slate-950 font-black shadow'
-                          : isSelected
-                          ? 'bg-cyan-500 text-slate-950 font-bold'
-                          : isCurrentMonth
-                          ? 'text-slate-200'
-                          : 'text-slate-500'
-                      }`}
-                    >
-                      {format(day, 'd')}
-                    </span>
-                    {/* Desktop Hover Quick Add */}
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onQuickAddForDate(day);
-                      }}
-                      title={`Add item on ${format(day, 'MMM d')}`}
-                      className="hidden md:inline-block opacity-0 group-hover:opacity-100 p-0.5 rounded hover:bg-slate-700 text-slate-400 hover:text-emerald-300 transition-opacity"
-                    >
-                      <Plus className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
+                <div className="flex items-center justify-between gap-0.5 mb-0.5">
+                  <span
+                    className={`text-[10px] sm:text-xs md:text-sm font-semibold rounded-full w-4.5 h-4.5 sm:w-6 sm:h-6 flex items-center justify-center shrink-0 ${
+                      isCurrentDay
+                        ? 'bg-emerald-500 text-slate-950 font-black shadow'
+                        : isSelected
+                        ? 'bg-cyan-500 text-slate-950 font-bold'
+                        : isCurrentMonth
+                        ? 'text-slate-200'
+                        : 'text-slate-500'
+                    }`}
+                  >
+                    {format(day, 'd')}
+                  </span>
 
-                  {/* Daily Running Bank Balance */}
+                  {/* Desktop Hover Quick Add */}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onQuickAddForDate(day);
+                    }}
+                    title={`Add item on ${format(day, 'MMM d')}`}
+                    className="hidden md:inline-block opacity-0 group-hover:opacity-100 p-0.5 rounded hover:bg-slate-700 text-slate-400 hover:text-emerald-300 transition-opacity"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                  </button>
+
+                  {/* Daily Running Bank Balance: On mobile only show if non-zero to avoid $0 crowding */}
                   {endingBal !== undefined && (
                     <div
-                      className={`text-[9px] sm:text-[10px] md:text-xs font-mono font-bold px-1 py-0.2 rounded transition-colors ${
+                      className={`text-[8px] sm:text-[10px] md:text-xs font-mono font-bold px-1 py-0.2 rounded transition-colors ${
                         hasOverdraft
                           ? 'bg-red-500/20 text-red-400 border border-red-500/40'
-                          : isTight
+                          : isTight && Math.round(endingBal) !== 0
                           ? 'bg-amber-500/15 text-amber-300'
                           : 'text-slate-400 group-hover:text-slate-200'
-                      }`}
+                      } ${Math.round(endingBal) === 0 ? 'hidden sm:block' : 'block'}`}
                       title={`Projected balance: $${endingBal.toFixed(2)}`}
                     >
                       <span className="sm:hidden">
-                        ${endingBal >= 10000 ? `${(endingBal / 1000).toFixed(0)}k` : Math.round(endingBal)}
+                        ${Math.abs(endingBal) >= 1000 ? `${(endingBal / 1000).toFixed(1)}k` : Math.round(endingBal)}
                       </span>
                       <span className="hidden sm:inline">
                         ${Math.round(endingBal).toLocaleString()}
@@ -174,7 +174,7 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
                 </div>
 
                 {/* Mobile View: Compact Indicator Dots (hidden on tablet/desktop) */}
-                <div className="md:hidden flex items-center gap-1 flex-wrap pt-0.5">
+                <div className="md:hidden flex items-center justify-center gap-0.5 flex-wrap pt-0.5 mt-auto">
                   {incomes.length > 0 && (
                     <span className="w-2 h-2 rounded-full bg-emerald-400 shrink-0" title="Payday" />
                   )}
@@ -296,8 +296,21 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
           })}
         </div>
 
+        {/* Empty State Helpful Hint */}
+        {calendarItems.length === 0 && (
+          <div className="mt-3 p-3.5 rounded-2xl bg-gradient-to-r from-emerald-950/40 to-slate-900 border border-emerald-500/30 text-xs shadow-lg">
+            <div className="font-bold text-emerald-300 flex items-center gap-1.5">
+              <Sparkles className="w-4 h-4 text-emerald-400 shrink-0" />
+              <span>Your Budget Vault is Ready</span>
+            </div>
+            <p className="text-slate-300 text-[11px] mt-1 leading-relaxed">
+              Tap any day on the calendar or tap the <strong>+</strong> button to add your recurring paydays, utility bills, and family events. You can also load the sample budget template from the gear icon (top right).
+            </p>
+          </div>
+        )}
+
         {/* MOBILE ONLY: Selected Day Interactive Agenda Drawer */}
-        <div className="md:hidden mt-3 bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl space-y-3">
+        <div className="md:hidden mt-3 mb-6 bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl space-y-3">
           <div className="flex items-center justify-between pb-2 border-b border-slate-800">
             <div>
               <div className="text-xs text-slate-400 flex items-center gap-1.5">

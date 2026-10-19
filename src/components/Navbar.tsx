@@ -16,7 +16,6 @@ import {
   LogOut,
   Cloud,
   CheckCircle2,
-  CalendarCheck,
 } from 'lucide-react';
 import { format, addMonths, subMonths } from 'date-fns';
 import { UserProfile } from '../types';
@@ -89,27 +88,18 @@ export const Navbar: React.FC<NavbarProps> = ({
       {/* Top Header */}
       <header className="sticky top-0 z-30 bg-slate-900 border-b border-slate-800 text-slate-100 shadow-md">
         <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-14 sm:h-16 gap-2">
+          {/* Row 1: Brand & User Controls */}
+          <div className="flex items-center justify-between h-13 sm:h-16 gap-2">
             {/* Brand & Logo */}
-            <div className="flex items-center gap-2 sm:gap-3">
-              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-emerald-500 to-cyan-500 flex items-center justify-center shadow text-white font-black text-base sm:text-xl shrink-0">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-emerald-500 to-cyan-500 flex items-center justify-center shadow text-white font-black shrink-0">
                 <TrendingUp className="w-5 h-5 sm:w-6 sm:h-6" />
               </div>
-              <div>
-                <div className="flex items-center gap-1.5 sm:gap-2">
-                  <span className="font-bold text-base sm:text-lg tracking-tight text-white">FlowBudget</span>
-                  <span className="hidden lg:inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                    Cash Flow
-                  </span>
-                </div>
-                <p className="text-[10px] sm:text-xs text-slate-400 hidden xl:block">
-                  Calendar-first cash flow & family schedules
-                </p>
-              </div>
+              <span className="font-bold text-base sm:text-lg tracking-tight text-white">FlowBudget</span>
             </div>
 
-            {/* Month Navigation */}
-            <div className="flex items-center bg-slate-800/90 rounded-xl p-0.5 sm:p-1 border border-slate-700/60 shadow-inner">
+            {/* Desktop Month Navigator (hidden on mobile, rendered on Row 2) */}
+            <div className="hidden sm:flex items-center bg-slate-800/90 rounded-xl p-1 border border-slate-700/60 shadow-inner">
               <button
                 onClick={handlePrevMonth}
                 title="Previous Month"
@@ -117,8 +107,8 @@ export const Navbar: React.FC<NavbarProps> = ({
               >
                 <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
               </button>
-              <div className="px-2 sm:px-3 py-0.5 sm:py-1 font-bold text-xs sm:text-sm min-w-[90px] sm:min-w-[120px] text-center text-slate-100">
-                {format(currentDate, 'MMM yyyy')}
+              <div className="px-3 py-1 font-bold text-xs sm:text-sm min-w-[120px] text-center text-slate-100">
+                {format(currentDate, 'MMMM yyyy')}
               </div>
               <button
                 onClick={handleNextMonth}
@@ -129,26 +119,26 @@ export const Navbar: React.FC<NavbarProps> = ({
               </button>
               <button
                 onClick={handleToday}
-                className="hidden sm:inline-block ml-1 px-2.5 py-1 text-xs font-medium rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-200 transition-colors"
+                className="ml-1 px-2.5 py-1 text-xs font-medium rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-200 transition-colors"
               >
                 Today
               </button>
             </div>
 
-            {/* Controls (Starting Balance, Layers, Add, User) */}
-            <div className="flex items-center gap-1 sm:gap-2">
+            {/* Actions: Balance, Layers, Sync, Avatar, Settings */}
+            <div className="flex items-center gap-1.5 sm:gap-2">
               {/* Starting Balance Display / Editor */}
               <div className="flex items-center bg-slate-800/80 border border-slate-700/70 rounded-xl px-2 sm:px-3 py-1">
-                <span className="text-[10px] sm:text-xs text-slate-400 mr-1 sm:mr-2 flex items-center">
-                  <DollarSign className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-emerald-400" />
-                  <span className="hidden sm:inline">Balance:</span>
+                <span className="text-[10px] sm:text-xs text-slate-400 mr-1 flex items-center">
+                  <DollarSign className="w-3 h-3 text-emerald-400" />
+                  <span className="hidden md:inline">Bal:</span>
                 </span>
                 {isEditingBalance ? (
                   <form onSubmit={handleSaveBalance} className="flex items-center gap-1">
                     <input
                       type="number"
                       step="0.01"
-                      className="w-16 sm:w-24 px-1 py-0.5 text-xs rounded bg-slate-900 border border-emerald-500 text-white font-mono"
+                      className="w-16 sm:w-20 px-1 py-0.5 text-xs rounded bg-slate-900 border border-emerald-500 text-white font-mono"
                       value={tempBalance}
                       onChange={(e) => setTempBalance(e.target.value)}
                       autoFocus
@@ -164,8 +154,8 @@ export const Navbar: React.FC<NavbarProps> = ({
                       setTempBalance(initialBalance.toString());
                       setIsEditingBalance(true);
                     }}
-                    className="font-mono font-bold text-xs sm:text-sm text-emerald-300 hover:text-emerald-200 hover:underline"
-                    title="Click to adjust starting bank balance"
+                    className="font-mono font-bold text-xs sm:text-sm text-emerald-300 hover:text-emerald-200"
+                    title="Tap to change starting balance"
                   >
                     ${initialBalance >= 10000 ? `${(initialBalance / 1000).toFixed(1)}k` : initialBalance.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
                   </button>
@@ -175,29 +165,28 @@ export const Navbar: React.FC<NavbarProps> = ({
               {/* Life Layers Toggle Button */}
               <button
                 onClick={onToggleLayers}
-                className="relative flex items-center gap-1 p-1.5 sm:px-3 sm:py-1.5 rounded-xl bg-slate-800 hover:bg-slate-750 text-slate-200 border border-slate-700/70 transition-colors text-xs font-medium"
+                className="relative p-1.5 sm:px-2.5 sm:py-1.5 rounded-xl bg-slate-800 hover:bg-slate-750 text-slate-200 border border-slate-700/70 transition-colors text-xs font-medium flex items-center gap-1"
                 title="Toggle family schedule layers & calendar filters"
               >
                 <Layers className="w-4 h-4 text-purple-400" />
-                <span className="hidden md:inline">Layers</span>
-                <span className="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-purple-500/20 border border-purple-500/40 text-[9px] sm:text-[10px] font-bold text-purple-300 flex items-center justify-center">
+                <span className="w-4 h-4 rounded-full bg-purple-500/20 border border-purple-500/40 text-[9px] font-bold text-purple-300 flex items-center justify-center">
                   {activeLayersCount}
                 </span>
               </button>
 
-              {/* Add Transaction Button (Desktop) */}
+              {/* Desktop Add Button */}
               <button
                 onClick={onOpenAddModal}
-                className="hidden md:flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs sm:text-sm shadow transition-colors"
+                className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs sm:text-sm shadow transition-colors"
               >
                 <Plus className="w-4 h-4 stroke-[3]" />
                 <span>Add</span>
               </button>
 
-              {/* Google Sync Button */}
+              {/* Google Sync Button (Desktop / Tablet) */}
               <button
                 onClick={triggerSync}
-                className={`p-1.5 sm:p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-emerald-300 border border-slate-700/60 transition-colors ${
+                className={`hidden sm:flex p-1.5 sm:p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-emerald-300 border border-slate-700/60 transition-colors ${
                   isSyncing ? 'text-emerald-400 rotate-180 transition-transform duration-500' : ''
                 }`}
                 title="Sync with Google Account"
@@ -210,12 +199,9 @@ export const Navbar: React.FC<NavbarProps> = ({
                 <div className="relative">
                   <button
                     onClick={() => setShowUserMenu(!showUserMenu)}
-                    className="flex items-center gap-1.5 p-1 sm:pl-2 rounded-xl bg-slate-800 hover:bg-slate-750 border border-slate-700/80 transition-colors"
+                    className="flex items-center gap-1.5 p-1 rounded-xl bg-slate-800 hover:bg-slate-750 border border-slate-700/80 transition-colors"
                     title={`Logged in as ${user.email}`}
                   >
-                    <span className="text-xs font-semibold text-slate-200 hidden xl:inline max-w-[80px] truncate">
-                      {user.name}
-                    </span>
                     {user.picture ? (
                       <img
                         src={user.picture}
@@ -321,7 +307,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
                 {showSettingsMenu && (
                   <div
-                    className="absolute right-0 mt-2 w-56 rounded-xl bg-slate-800 border border-slate-700 shadow-xl py-2 z-50 text-xs text-slate-200"
+                    className="absolute right-0 mt-2 w-56 rounded-2xl bg-slate-800 border border-slate-700 shadow-xl py-2 z-50 text-xs text-slate-200"
                     onMouseLeave={() => setShowSettingsMenu(false)}
                   >
                     <div className="px-3 py-1.5 border-b border-slate-700/80 font-semibold text-slate-400 uppercase tracking-wider text-[10px]">
@@ -344,20 +330,45 @@ export const Navbar: React.FC<NavbarProps> = ({
                     </label>
                     <button
                       onClick={() => {
-                        if (confirm('Reset your account data to sample template (includes football, color guard, fluctuating electric bill, and $1,000 debt payoff)?')) {
+                        if (confirm('Load sample budget template (includes football, color guard, fluctuating electric bill, and $1,000 debt payoff)?')) {
                           onResetData();
                         }
                         setShowSettingsMenu(false);
                       }}
-                      className="w-full text-left px-3 py-2 hover:bg-red-500/10 text-red-400 flex items-center gap-2"
+                      className="w-full text-left px-3 py-2 hover:bg-emerald-500/10 text-emerald-400 flex items-center gap-2 font-semibold"
                     >
                       <RotateCcw className="w-3.5 h-3.5" />
-                      <span>Load Sample Template</span>
+                      <span>Load Sample Budget Template</span>
                     </button>
                   </div>
                 )}
               </div>
             </div>
+          </div>
+
+          {/* Row 2 on Mobile ONLY: Centered Month Switcher */}
+          <div className="sm:hidden flex items-center justify-between py-1.5 border-t border-slate-800/80">
+            <button
+              onClick={handlePrevMonth}
+              className="p-1 rounded-lg bg-slate-800 text-slate-300 hover:text-white"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+            <div className="font-bold text-xs text-slate-100 flex items-center gap-2">
+              <span>{format(currentDate, 'MMMM yyyy')}</span>
+              <button
+                onClick={handleToday}
+                className="px-2 py-0.5 text-[10px] font-semibold rounded bg-slate-800 text-slate-300"
+              >
+                Today
+              </button>
+            </div>
+            <button
+              onClick={handleNextMonth}
+              className="p-1 rounded-lg bg-slate-800 text-slate-300 hover:text-white"
+            >
+              <ChevronRight className="w-4 h-4" />
+            </button>
           </div>
 
           {/* Desktop View Switcher Tabs (hidden on mobile, replaced by bottom bar) */}
